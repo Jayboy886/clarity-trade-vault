@@ -6,6 +6,7 @@
 (define-constant ERR_INVALID_STATUS (err u101))
 (define-constant ERR_LISTING_NOT_FOUND (err u102))
 (define-constant ERR_OFFER_NOT_FOUND (err u103))
+(define-constant ERR_ALREADY_COMPLETED (err u104))
 
 ;; Data Variables
 (define-data-var next-listing-id uint u0)
@@ -64,6 +65,7 @@
             (listing (unwrap! (map-get? Listings listing-id) ERR_LISTING_NOT_FOUND))
         )
         (asserts! (is-eq (get status listing) "active") ERR_INVALID_STATUS)
+        (asserts! (not (is-eq (get owner listing) tx-sender)) ERR_UNAUTHORIZED)
         (map-set Offers offer-id {
             listing-id: listing-id,
             from: tx-sender,
@@ -83,7 +85,8 @@
             (listing (unwrap! (map-get? Listings (get listing-id offer)) ERR_LISTING_NOT_FOUND))
         )
         (asserts! (is-eq tx-sender (get owner listing)) ERR_UNAUTHORIZED)
-        (asserts! (is-eq (get status offer) "pending") ERR_INVALID_STATUS)
+        (asserts! (is-eq (get status offer) "pending") ERR_INVALID_STATUS) 
+        (asserts! (is-eq (get status listing) "active") ERR_ALREADY_COMPLETED)
         
         ;; Update offer status
         (map-set Offers offer-id (merge offer { status: "accepted" }))
@@ -108,6 +111,7 @@
         )
         (asserts! (is-eq tx-sender (get owner listing)) ERR_UNAUTHORIZED)
         (asserts! (is-eq (get status offer) "pending") ERR_INVALID_STATUS)
+        (asserts! (is-eq (get status listing) "active") ERR_ALREADY_COMPLETED)
         (map-set Offers offer-id (merge offer { status: "rejected" }))
         (ok true)
     )
