@@ -38,6 +38,41 @@ Clarinet.test({
 });
 
 Clarinet.test({
+    name: "Can cancel an active listing",
+    async fn(chain: Chain, accounts: Map<string, Account>) {
+        const wallet1 = accounts.get('wallet_1')!;
+        
+        // Create listing
+        chain.mineBlock([
+            Tx.contractCall('trade_vault', 'create-listing', [
+                types.uint(1),
+                types.ascii("Test Collectible")
+            ], wallet1.address)
+        ]);
+        
+        // Cancel listing
+        let block = chain.mineBlock([
+            Tx.contractCall('trade_vault', 'cancel-listing', [
+                types.uint(0)
+            ], wallet1.address)
+        ]);
+        
+        block.receipts[0].result.expectOk().expectBool(true);
+        
+        // Verify cancelled status
+        let listing = chain.callReadOnlyFn(
+            'trade_vault',
+            'get-listing',
+            [types.uint(0)],
+            wallet1.address
+        );
+        
+        let listingData = listing.result.expectSome().expectTuple();
+        assertEquals(listingData['status'], types.ascii("cancelled"));
+    }
+});
+
+Clarinet.test({
     name: "Cannot make offer on own listing",
     async fn(chain: Chain, accounts: Map<string, Account>) {
         const wallet1 = accounts.get('wallet_1')!;
