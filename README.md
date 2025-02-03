@@ -6,6 +6,7 @@ A secure platform for peer-to-peer trading of collectibles built on Stacks block
 - Create trade listings for collectibles
 - Make trade offers 
 - Accept/reject trade offers
+- Cancel active listings
 - Escrow system for secure trading
 - Trade history tracking
 - Prevents self-trading (listing owners cannot make offers on their own items)
@@ -14,6 +15,7 @@ A secure platform for peer-to-peer trading of collectibles built on Stacks block
 ## Contract Functions
 The smart contract enables secure peer-to-peer trading through:
 - Listing creation and management
+- Listing cancellation
 - Offer submission and handling
 - Escrow mechanics
 - Trade completion and status tracking

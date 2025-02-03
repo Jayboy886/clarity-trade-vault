@@ -57,6 +57,19 @@
     )
 )
 
+;; Cancel a listing
+(define-public (cancel-listing (listing-id uint))
+    (let
+        (
+            (listing (unwrap! (map-get? Listings listing-id) ERR_LISTING_NOT_FOUND))
+        )
+        (asserts! (is-eq tx-sender (get owner listing)) ERR_UNAUTHORIZED)
+        (asserts! (is-eq (get status listing) "active") ERR_INVALID_STATUS)
+        (map-set Listings listing-id (merge listing { status: "cancelled" }))
+        (ok true)
+    )
+)
+
 ;; Make an offer on a listing
 (define-public (make-offer (listing-id uint) (offer-item-id uint))
     (let
