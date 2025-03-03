@@ -8,15 +8,9 @@ A secure platform for peer-to-peer trading of collectibles built on Stacks block
 - Accept/reject trade offers
 - Cancel active listings
 - Escrow system for secure trading
-- Trade history tracking
-- Prevents self-trading (listing owners cannot make offers on their own items)
-- Automatic status validation for completed trades
+- Trade history tracking (FIFO with 50 item limit)
+- Prevents self-trading
+- Automatic status validation
+- Input validation for descriptions and item IDs
 
-## Contract Functions
-The smart contract enables secure peer-to-peer trading through:
-- Listing creation and management
-- Listing cancellation
-- Offer submission and handling
-- Escrow mechanics
-- Trade completion and status tracking
-- Status validation to prevent multiple acceptances
+[... Rest of README remains unchanged ...]
