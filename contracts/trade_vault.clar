@@ -9,6 +9,7 @@
 (define-constant ERR_ALREADY_COMPLETED (err u104))
 (define-constant ERR_INVALID_ITEM_ID (err u105))
 (define-constant ERR_HISTORY_OVERFLOW (err u106))
+(define-constant ERR_INVALID_DESCRIPTION (err u107))
 
 ;; Status Constants
 (define-constant STATUS_ACTIVE "active")
@@ -49,19 +50,31 @@
 
 ;; Private Functions
 
-;; Add trade to user's history, handling overflow
+;; Validate description length and content
+(define-private (validate-description (description (string-ascii 256)))
+    (if (> (len description) u0)
+        (ok true)
+        ERR_INVALID_DESCRIPTION))
+
+;; Optimized trade history management
 (define-private (add-trade-to-history (user principal) (listing-id uint))
     (let
         (
             (current-history (default-to (list) (map-get? UserTrades user)))
         )
-        (match (as-max-len? (append current-history listing-id) u50)
-            success (map-set UserTrades user success)
-            (map-set UserTrades 
-                user 
-                (unwrap! (as-max-len? (concat (list listing-id) (slice? current-history u0 u49)) u50)
-                        ERR_HISTORY_OVERFLOW))
-        )
+        (ok (map-set UserTrades 
+            user 
+            (unwrap! 
+                (as-max-len? 
+                    (concat 
+                        (list listing-id)
+                        (slice? current-history u0 u49)
+                    )
+                    u50
+                )
+                ERR_HISTORY_OVERFLOW
+            )
+        ))
     )
 )
 
@@ -69,8 +82,7 @@
 (define-private (validate-item-id (item-id uint))
     (if (> item-id u0)
         (ok true)
-        ERR_INVALID_ITEM_ID)
-)
+        ERR_INVALID_ITEM_ID))
 
 ;; Public Functions
 
@@ -78,6 +90,7 @@
 (define-public (create-listing (item-id uint) (description (string-ascii 256)))
     (begin
         (try! (validate-item-id item-id))
+        (try! (validate-description description))
         (let
             (
                 (listing-id (var-get next-listing-id))
